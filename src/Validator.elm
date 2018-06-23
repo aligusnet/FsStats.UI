@@ -33,10 +33,10 @@ toFloatFromInterval : String -> Float -> Float -> String -> Result String Float
 toFloatFromInterval field begin end s =
     let
         testForInterval x =
-            if x < begin || x >= end then
-                Err (field ++ ": floating point value must be in interval [" ++ (toString begin) ++ ", " ++ (toString end) ++ ")")
-            else
+            if x > begin && x < end then
                 Ok x
+            else
+                Err (field ++ ": floating point value must be between " ++ (toString begin) ++ " and " ++ (toString end))
     in
         toFloat field s
             |> Result.andThen testForInterval
@@ -95,10 +95,10 @@ toIntFromInterval : String -> Int -> Int -> String -> Result String Int
 toIntFromInterval field begin end s =
     let
         testForInterval x =
-            if x < begin || x >= end then
-                Err (field ++ ": integer value must be in interval [" ++ (toString begin) ++ ", " ++ (toString end) ++ ")")
-            else
+            if x > begin && x < end then
                 Ok x
+            else
+                Err (field ++ ": integer value must be  between " ++ (toString begin) ++ " and " ++ (toString end))
     in
         toInt field s
             |> Result.andThen testForInterval
