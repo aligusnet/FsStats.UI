@@ -1,0 +1,53 @@
+/*************************
+Properties
+*************************/
+.property-row {
+	display: flex;
+	flex-direction: row;
+	flex-grow: 0;
+	flex-wrap: wrap;
+    padding-top: 5px;
+}
+.property-caption {
+    text-align: left;
+    font-weight: bold;
+    padding-top: 10px;
+}
+.property-name {
+	width: 90px;
+    overflow: hidden;
+  	white-space: nowrap;
+  	text-overflow: ellipsis;
+  	padding-right: 10px;
+  	font-weight: bold;
+}
+.property-value {
+	width: 170px;
+}
+
+/*************************
+Global
+*************************/
+.wrapper-stats {
+    margin: auto 40px;
+    max-width: 500px;
+}
+.wrapper-stats input {
+	width: 90%;
+}
+.wrapper-stats button {
+	width: 90%;
+}
+
+
+/*************************
+Media Queries
+*************************/
+@media screen and (max-width: 800px) {
+	.wrapper-stats {
+		margin: auto;
+	}
+	.astro-item {
+		margin-right: auto;
+	}
+}
