@@ -99,17 +99,7 @@ update msg model =
             validateAndFetchStats model
 
         FetchStatsSuccess value ->
-            case Json.decodeResponse value of
-                Ok response ->
-                    case response.normal of
-                        Just normal ->
-                            ( { model | stats = RemoteData.Success normal }, drawPlot normal.curve )
-
-                        Nothing ->
-                            ( { model | stats = RemoteData.Failure (Data.BadPayload "No data retrieved") }, drawPlot Nothing )
-
-                Err error ->
-                    ( { model | stats = RemoteData.Failure (Data.BadPayload error) }, drawPlot Nothing )
+            onFetchStatsSuccess model value
 
         FetchStatsError error ->
             ( { model | stats = RemoteData.Failure (Data.BadStatus error) }, drawPlot Nothing )
@@ -150,6 +140,21 @@ validateAndFetchStats model =
 
             Err error ->
                 ( { model | stats = RemoteData.Failure (Data.BadRequest error) }, drawPlot Nothing )
+
+
+onFetchStatsSuccess : Model -> String -> ( Model, Cmd Message )
+onFetchStatsSuccess model value =
+    case Json.decodeResponse value of
+        Ok response ->
+            case response.normal of
+                Just normal ->
+                    ( { model | stats = RemoteData.Success normal }, drawPlot normal.curve )
+
+                Nothing ->
+                    ( { model | stats = RemoteData.Failure (Data.BadPayload "No data retrieved") }, drawPlot Nothing )
+
+        Err error ->
+            ( { model | stats = RemoteData.Failure (Data.BadPayload error) }, drawPlot Nothing )
 
 
 toNormalParams : String -> String -> Result String Data.NormalParams
