@@ -24,6 +24,15 @@ Properties
 .property-value {
 	width: 170px;
 }
+.stats-caption {
+	margin: auto 40px;
+	font-weight: bold;
+	font-size: 110%;
+	text-decoration: underline;
+}
+.stats {
+	display: none;
+}
 
 /*************************
 Global

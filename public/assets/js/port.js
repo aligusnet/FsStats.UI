@@ -51,3 +51,8 @@ app.ports.clearPlot.subscribe(function(plotId) {
   document.getElementById(plotId).innerHTML = "";
 });
 
+$(document).ready(function() {
+  $('#normal-caption').click(function() {
+    $('#normal').slideToggle("fast");
+  });
+});

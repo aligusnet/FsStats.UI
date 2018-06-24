@@ -169,8 +169,7 @@ view model =
             getResponse model
     in
         div [ Attr.class Style.wrapper ]
-            [ UI.caption "Normal Distribution"
-            , UI.inputRow "Mu" "mu, e.g. 0.0" ChangeMu
+            [ UI.inputRow "Mu" "mu, e.g. 0.0" ChangeMu
             , UI.inputRow "Sigma" "sigma, e.g. 1.0" ChangeSigma
             , viewRemoteStatsData model.stats
             , UI.propertyInputRowWithCaption "Probability density function (PDF)" "x" ChangePdf response.pdf
