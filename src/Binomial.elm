@@ -1,4 +1,4 @@
-module Normal exposing (main)
+module Binomial exposing (main)
 
 import Array
 import Html exposing (..)
@@ -24,16 +24,15 @@ main =
 
 
 type alias RemoteStatsData =
-    RemoteData.RemoteData Data.Error Data.NormalResponse
+    RemoteData.RemoteData Data.Error Data.BinomialResponse
 
 
 type alias Model =
     { stats : RemoteStatsData
-    , mu : String
-    , sigma : String
-    , pdf : String
+    , numberOfTrials : String
+    , p : String
+    , pmf : String
     , cdf : String
-    , quantile : String
     , sample : String
     }
 
@@ -42,11 +41,10 @@ type Message
     = FetchStats
     | FetchStatsSuccess String
     | FetchStatsError String
-    | ChangeMu String
-    | ChangeSigma String
-    | ChangePdf String
+    | ChangeNumberOfTrials String
+    | ChangeP String
+    | ChangePmf String
     | ChangeCdf String
-    | ChangeQuantile String
     | ChangeSample String
 
 
@@ -58,38 +56,46 @@ subscriptions model =
         ]
 
 
-getResponse : Model -> Data.NormalResponse
+getResponse : Model -> Data.BinomialResponse
 getResponse model =
     case model.stats of
         RemoteData.Success stats ->
             stats
 
         _ ->
-            Data.emptyNormalResponse
+            Data.emptyBinomialResponse
 
 
 init : ( Model, Cmd Message )
 init =
     ( { stats = RemoteData.NotAsked
-      , mu = ""
-      , sigma = ""
-      , pdf = ""
+      , numberOfTrials = ""
+      , p = ""
+      , pmf = ""
       , cdf = ""
-      , quantile = ""
       , sample = ""
       }
     , Cmd.none
     )
 
 
-fetchStats : Data.NormalRequest -> Cmd msg
+fetchStats : Data.BinomialRequest -> Cmd msg
 fetchStats request =
-    AWS.Lambda.fetchStats { emptyRequest | normal = Just request }
+    AWS.Lambda.fetchStats { emptyRequest | binomial = Just request }
 
 
-drawPlot : Maybe ( Array.Array Float, Array.Array Float ) -> Cmd msg
+drawPlot : Maybe ( Array.Array Int, Array.Array Float ) -> Cmd msg
 drawPlot curve =
-    Plotty.plot "normal_plot" "Normal Distribution" curve
+    let
+        curve_ =
+            case curve of
+                Just ( x, y ) ->
+                    (Just ( Array.map toFloat x, y ))
+
+                Nothing ->
+                    Nothing
+    in
+        Plotty.plot "binomial_plot" "Binomial Distribution" curve_
 
 
 update : Message -> Model -> ( Model, Cmd Message )
@@ -104,20 +110,17 @@ update msg model =
         FetchStatsError error ->
             ( { model | stats = RemoteData.Failure (Data.BadStatus error) }, drawPlot Nothing )
 
-        ChangeMu value ->
-            ( { model | mu = value }, Cmd.none )
+        ChangeNumberOfTrials value ->
+            ( { model | numberOfTrials = value }, Cmd.none )
 
-        ChangeSigma value ->
-            ( { model | sigma = value }, Cmd.none )
+        ChangeP value ->
+            ( { model | p = value }, Cmd.none )
 
-        ChangePdf value ->
-            ( { model | pdf = value }, Cmd.none )
+        ChangePmf value ->
+            ( { model | pmf = value }, Cmd.none )
 
         ChangeCdf value ->
             ( { model | cdf = value }, Cmd.none )
-
-        ChangeQuantile value ->
-            ( { model | quantile = value }, Cmd.none )
 
         ChangeSample value ->
             ( { model | sample = value }, Cmd.none )
@@ -127,16 +130,15 @@ validateAndFetchStats : Model -> ( Model, Cmd Message )
 validateAndFetchStats model =
     let
         r =
-            Result.map Data.NormalRequest (toNormalParams model.mu model.sigma)
+            Result.map Data.BinomialRequest (toParams model.numberOfTrials model.p)
                 |> andThen (Ok (Just 40))
-                |> andThen (Validator.toMaybeFloat "PDF" model.pdf)
-                |> andThen (Validator.toMaybeFloat "CDF" model.cdf)
-                |> andThen (Validator.toMaybeFloatFromInterval "Quantile" 0 1 model.quantile)
+                |> andThen (Validator.toMaybeInt "PMF" model.pmf)
+                |> andThen (Validator.toMaybeInt "CDF" model.cdf)
                 |> andThen (Validator.toMaybeIntFromInterval "Sample" 0 101 model.sample)
     in
         case r of
             Ok request ->
-                ( { model | stats = RemoteData.Loading }, fetchStats request )
+                ( { model | stats = RemoteData.Loading }, fetchStats { request | curve = Just (request.params.numberOfTrials + 1) } )
 
             Err error ->
                 ( { model | stats = RemoteData.Failure (Data.BadRequest error) }, drawPlot Nothing )
@@ -146,9 +148,9 @@ onFetchStatsSuccess : Model -> String -> ( Model, Cmd Message )
 onFetchStatsSuccess model value =
     case Json.decodeResponse value of
         Ok response ->
-            case response.normal of
-                Just normal ->
-                    ( { model | stats = RemoteData.Success normal }, drawPlot normal.curve )
+            case response.binomial of
+                Just binomial ->
+                    ( { model | stats = RemoteData.Success binomial }, drawPlot binomial.curve )
 
                 Nothing ->
                     ( { model | stats = RemoteData.Failure (Data.BadPayload "No data retrieved") }, drawPlot Nothing )
@@ -157,9 +159,11 @@ onFetchStatsSuccess model value =
             ( { model | stats = RemoteData.Failure (Data.BadPayload error) }, drawPlot Nothing )
 
 
-toNormalParams : String -> String -> Result String Data.NormalParams
-toNormalParams mu sigma =
-    Result.map2 Data.NormalParams (Validator.toFloat "Mu" mu) (Validator.toNonNegativeFloat "Sigma" sigma)
+toParams : String -> String -> Result String Data.BinomialParams
+toParams n p =
+    Result.map2 Data.BinomialParams
+        (Validator.toIntFromInterval "NumberOfTrials" 0 201 n)
+        (Validator.toNonNegativeFloat "Probability" p)
 
 
 view : Model -> Html Message
@@ -169,14 +173,13 @@ view model =
             getResponse model
     in
         div [ Attr.class Style.wrapper ]
-            [ UI.inputRow "Mu" "mu, e.g. 0.0" ChangeMu
-            , UI.inputRow "Sigma" "sigma, e.g. 1.0" ChangeSigma
+            [ UI.inputRow "NumberOfTrials" "e.g. 10" ChangeNumberOfTrials
+            , UI.inputRow "Probability" "e.g. 0.7" ChangeP
             , viewRemoteStatsData model.stats
-            , UI.propertyInputRowWithCaption "Probability density function (PDF)" "x" ChangePdf response.pdf
+            , UI.propertyInputRowWithCaption "Probability mass function (PMF)" "x" ChangePmf response.pmf
             , UI.propertyInputRowWithCaption "Cumulative distribution function (CDF)" "x" ChangeCdf response.cdf
-            , UI.propertyInputRowWithCaption "Quantile" "F" ChangeQuantile response.quantile
             , UI.propertyInputRowArrayValueWithCaption "Random Sample" "Size" ChangeSample response.sample
-            , div [ Attr.id "normal_plot" ] []
+            , div [ Attr.id "binomial_plot" ] []
             , UI.submitButton "Retrieve stats" FetchStats
             , UI.error model.stats
             ]
@@ -192,10 +195,11 @@ viewRemoteStatsData rsd =
             text ""
 
 
-viewStatsData : Data.NormalResponse -> Html Message
+viewStatsData : Data.BinomialResponse -> Html Message
 viewStatsData response =
     div [ Attr.class Style.propertyCaption ]
         [ UI.propertyRow "Mean" (toString response.mean)
         , UI.propertyRow "StdDev" (toString response.stddev)
         , UI.propertyRow "Variance" (toString response.variance)
+        , UI.propertyRow "isNormalApproximationApplicable" (toString response.isNormalApproximationApplicable)
         ]
