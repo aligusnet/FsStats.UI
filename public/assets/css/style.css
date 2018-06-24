@@ -33,10 +33,19 @@ Properties
 .stats {
 	display: none;
 }
-
+.stats-list {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+}
+.stats-list-item {
+	margin-right: 35px;
+	width: 500px;
+}
 /*************************
 Global
 *************************/
+
 .wrapper-stats {
     margin: auto 40px;
     max-width: 500px;
@@ -47,8 +56,9 @@ Global
 .wrapper-stats button {
 	width: 90%;
 }
-
-
+.error {
+	color: crimson;
+}
 /*************************
 Media Queries
 *************************/

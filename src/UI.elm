@@ -20,7 +20,8 @@ error rsd =
             text "Please wait, stats data is loading..."
 
         RemoteData.Failure err ->
-            text ("Error: " ++ toString err)
+            div [ Attr.class Style.error ]
+                [ text ("Error: " ++ toString err) ]
 
         RemoteData.Success stats ->
             text ""

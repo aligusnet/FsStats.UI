@@ -29,3 +29,8 @@ propertyName =
 propertyValue : String
 propertyValue =
     "property-value"
+
+
+error : String
+error =
+    "error"

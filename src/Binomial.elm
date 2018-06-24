@@ -163,7 +163,7 @@ toParams : String -> String -> Result String Data.BinomialParams
 toParams n p =
     Result.map2 Data.BinomialParams
         (Validator.toIntFromInterval "NumberOfTrials" 0 201 n)
-        (Validator.toNonNegativeFloat "Probability" p)
+        (Validator.toFloatFromInterval "Probability" 0.0 1.0 p)
 
 
 view : Model -> Html Message
