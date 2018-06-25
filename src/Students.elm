@@ -187,7 +187,7 @@ propertyNu =
     { property
         | name = "Degrees of freedom"
         , message = Just ChangeNu
-        , placeholder = "mu, e.g. 0.0"
+        , placeholder = "nu, e.g. 20"
     }
 
 
