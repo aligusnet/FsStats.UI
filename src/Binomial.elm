@@ -10,6 +10,7 @@ import AWS.Lambda
 import Plotty
 import Validator exposing (andThen)
 import UI
+import UI.Property exposing (Property, property)
 import UI.Style as Style
 
 
@@ -23,8 +24,12 @@ main =
         }
 
 
+type alias Response =
+    Data.BinomialResponse
+
+
 type alias RemoteStatsData =
-    RemoteData.RemoteData Data.Error Data.BinomialResponse
+    RemoteData.RemoteData Data.Error Response
 
 
 type alias Model =
@@ -56,7 +61,7 @@ subscriptions model =
         ]
 
 
-getResponse : Model -> Data.BinomialResponse
+getResponse : Model -> Response
 getResponse model =
     case model.stats of
         RemoteData.Success stats ->
@@ -132,8 +137,8 @@ validateAndFetchStats model =
         r =
             Result.map Data.BinomialRequest (toParams model.numberOfTrials model.p)
                 |> andThen (Ok (Just 40))
-                |> andThen (Validator.toMaybeInt "PMF" model.pmf)
-                |> andThen (Validator.toMaybeInt "CDF" model.cdf)
+                |> andThen (Validator.toMaybeIntFromInterval "PMF" 0 201 model.pmf)
+                |> andThen (Validator.toMaybeIntFromInterval "CDF" 0 201 model.cdf)
                 |> andThen (Validator.toMaybeIntFromInterval "Sample" 0 101 model.sample)
     in
         case r of
@@ -142,6 +147,13 @@ validateAndFetchStats model =
 
             Err error ->
                 ( { model | stats = RemoteData.Failure (Data.BadRequest error) }, drawPlot Nothing )
+
+
+toParams : String -> String -> Result String Data.BinomialParams
+toParams n p =
+    Result.map2 Data.BinomialParams
+        (Validator.toIntFromInterval "NumberOfTrials" 0 201 n)
+        (Validator.toFloatFromInterval "Probability" 0.0 1.0 p)
 
 
 onFetchStatsSuccess : Model -> String -> ( Model, Cmd Message )
@@ -159,13 +171,6 @@ onFetchStatsSuccess model value =
             ( { model | stats = RemoteData.Failure (Data.BadPayload error) }, drawPlot Nothing )
 
 
-toParams : String -> String -> Result String Data.BinomialParams
-toParams n p =
-    Result.map2 Data.BinomialParams
-        (Validator.toIntFromInterval "NumberOfTrials" 0 201 n)
-        (Validator.toFloatFromInterval "Probability" 0.0 1.0 p)
-
-
 view : Model -> Html Message
 view model =
     let
@@ -173,33 +178,86 @@ view model =
             getResponse model
     in
         div [ Attr.class Style.wrapper ]
-            [ UI.inputRow "NumberOfTrials" "e.g. 10" ChangeNumberOfTrials
-            , UI.inputRow "Probability" "e.g. 0.7" ChangeP
+            [ UI.Property.render propertyNumberOfTrials
+            , UI.Property.render propertyProbability
             , viewRemoteStatsData model.stats
-            , UI.propertyInputRowWithCaption "Probability mass function (PMF)" "x" ChangePmf response.pmf
-            , UI.propertyInputRowWithCaption "Cumulative distribution function (CDF)" "x" ChangeCdf response.cdf
-            , UI.propertyInputRowArrayValueWithCaption "Random Sample" "Size" ChangeSample response.sample
+            , UI.Property.render (propertyPmf response)
+            , UI.Property.render (propertyCdf response)
+            , UI.Property.render (propertySample response)
             , div [ Attr.id "binomial_plot" ] []
             , UI.submitButton "Retrieve stats" FetchStats
             , UI.error model.stats
             ]
 
 
+propertyNumberOfTrials : Property Message
+propertyNumberOfTrials =
+    { property
+        | name = "NumberOfTrials"
+        , message = Just ChangeNumberOfTrials
+        , placeholder = "e.g. 10"
+    }
+
+
+propertyProbability : Property Message
+propertyProbability =
+    { property
+        | name = "Probability"
+        , message = Just ChangeP
+        , placeholder = "e.g. 0.7"
+    }
+
+
+propertyPmf : Response -> Property Message
+propertyPmf response =
+    { property
+        | caption = Just "Probability mass function (PMF)"
+        , name = "x"
+        , message = Just ChangePmf
+        , value = UI.Property.VFloat response.pmf
+    }
+
+
+propertyCdf : Response -> Property Message
+propertyCdf response =
+    { property
+        | caption = Just "Cumulative distribution function (CDF)"
+        , name = "x"
+        , message = Just ChangeCdf
+        , value = UI.Property.VFloat response.cdf
+    }
+
+
+propertySample : Response -> Property Message
+propertySample response =
+    { property
+        | caption = Just "Random Sample"
+        , name = "Size"
+        , message = Just ChangeSample
+        , value = UI.Property.VArrayInt response.sample
+    }
+
+
 viewRemoteStatsData : RemoteStatsData -> Html Message
 viewRemoteStatsData rsd =
-    case rsd of
-        RemoteData.Success stats ->
-            viewStatsData stats
+    let
+        response =
+            case rsd of
+                RemoteData.Success stats ->
+                    Just stats
 
-        _ ->
-            text ""
+                _ ->
+                    Nothing
 
+        makeProperty name f =
+            { property | name = name, value = UI.Property.VFloat (Maybe.map f response) }
 
-viewStatsData : Data.BinomialResponse -> Html Message
-viewStatsData response =
-    div [ Attr.class Style.propertyCaption ]
-        [ UI.propertyRow "Mean" (toString response.mean)
-        , UI.propertyRow "StdDev" (toString response.stddev)
-        , UI.propertyRow "Variance" (toString response.variance)
-        , UI.propertyRow "isNormalApproximationApplicable" (toString response.isNormalApproximationApplicable)
-        ]
+        makeBoolProperty name f =
+            { property | name = name, value = UI.Property.VBool (Maybe.map f response) }
+    in
+        div []
+            [ UI.Property.render (makeProperty "Mean" .mean)
+            , UI.Property.render (makeProperty "StdDev" .stddev)
+            , UI.Property.render (makeProperty "Variance" .variance)
+            , UI.Property.render (makeBoolProperty "isNormalApproximationApplicable" .isNormalApproximationApplicable)
+            ]

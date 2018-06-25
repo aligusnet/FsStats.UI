@@ -1,6 +1,6 @@
 module Normal exposing (main)
 
-import Array
+import Array exposing (Array)
 import Html exposing (..)
 import Html.Attributes as Attr
 import RemoteData
@@ -10,6 +10,7 @@ import AWS.Lambda
 import Plotty
 import Validator exposing (andThen)
 import UI
+import UI.Property exposing (Property, property)
 import UI.Style as Style
 
 
@@ -23,8 +24,12 @@ main =
         }
 
 
+type alias Response =
+    Data.NormalResponse
+
+
 type alias RemoteStatsData =
-    RemoteData.RemoteData Data.Error Data.NormalResponse
+    RemoteData.RemoteData Data.Error Response
 
 
 type alias Model =
@@ -58,7 +63,7 @@ subscriptions model =
         ]
 
 
-getResponse : Model -> Data.NormalResponse
+getResponse : Model -> Response
 getResponse model =
     case model.stats of
         RemoteData.Success stats ->
@@ -169,33 +174,93 @@ view model =
             getResponse model
     in
         div [ Attr.class Style.wrapper ]
-            [ UI.inputRow "Mu" "mu, e.g. 0.0" ChangeMu
-            , UI.inputRow "Sigma" "sigma, e.g. 1.0" ChangeSigma
+            [ UI.Property.render propertyMu
+            , UI.Property.render propertySigma
             , viewRemoteStatsData model.stats
-            , UI.propertyInputRowWithCaption "Probability density function (PDF)" "x" ChangePdf response.pdf
-            , UI.propertyInputRowWithCaption "Cumulative distribution function (CDF)" "x" ChangeCdf response.cdf
-            , UI.propertyInputRowWithCaption "Quantile" "F" ChangeQuantile response.quantile
-            , UI.propertyInputRowArrayValueWithCaption "Random Sample" "Size" ChangeSample response.sample
+            , UI.Property.render (propertyPdf response)
+            , UI.Property.render (propertyCdf response)
+            , UI.Property.render (propertyQuantile response)
+            , UI.Property.render (propertySample response)
             , div [ Attr.id "normal_plot" ] []
             , UI.submitButton "Retrieve stats" FetchStats
             , UI.error model.stats
             ]
 
 
+propertyMu : Property Message
+propertyMu =
+    { property
+        | name = "Mu"
+        , message = Just ChangeMu
+        , placeholder = "mu, e.g. 0.0"
+    }
+
+
+propertySigma : Property Message
+propertySigma =
+    { property
+        | name = "Sigma"
+        , message = Just ChangeSigma
+        , placeholder = "sigma, e.g. 1.0"
+    }
+
+
+propertyPdf : Response -> Property Message
+propertyPdf response =
+    { property
+        | caption = Just "Probability density function (PDF)"
+        , name = "x"
+        , message = Just ChangePdf
+        , value = UI.Property.VFloat response.pdf
+    }
+
+
+propertyCdf : Response -> Property Message
+propertyCdf response =
+    { property
+        | caption = Just "Cumulative distribution function (CDF)"
+        , name = "x"
+        , message = Just ChangeCdf
+        , value = UI.Property.VFloat response.cdf
+    }
+
+
+propertyQuantile : Response -> Property Message
+propertyQuantile response =
+    { property
+        | caption = Just "Quantile"
+        , name = "F"
+        , message = Just ChangeQuantile
+        , value = UI.Property.VFloat response.quantile
+    }
+
+
+propertySample : Response -> UI.Property.Property Message
+propertySample response =
+    { property
+        | caption = Just "Random Sample"
+        , name = "Size"
+        , message = Just ChangeSample
+        , value = UI.Property.VArrayFloat response.sample
+    }
+
+
 viewRemoteStatsData : RemoteStatsData -> Html Message
 viewRemoteStatsData rsd =
-    case rsd of
-        RemoteData.Success stats ->
-            viewStatsData stats
+    let
+        response =
+            case rsd of
+                RemoteData.Success stats ->
+                    Just stats
 
-        _ ->
-            text ""
+                _ ->
+                    Nothing
 
-
-viewStatsData : Data.NormalResponse -> Html Message
-viewStatsData response =
-    div [ Attr.class Style.propertyCaption ]
-        [ UI.propertyRow "Mean" (toString response.mean)
-        , UI.propertyRow "StdDev" (toString response.stddev)
-        , UI.propertyRow "Variance" (toString response.variance)
-        ]
+        makeProperty name f =
+            { property | name = name, value = UI.Property.VFloat (Maybe.map f response) }
+    in
+        div []
+            [ UI.Property.render (makeProperty "Mean" .mean)
+            , UI.Property.render (makeProperty "StdDev" .stddev)
+            , UI.Property.render (makeProperty "Variance" .variance)
+            ]
