@@ -185,7 +185,7 @@ view model =
 propertyMu : Property Message
 propertyMu =
     { property
-        | name = "Probability"
+        | name = "Mu"
         , message = Just ChangeMu
         , placeholder = "e.g. 70.0"
     }
