@@ -56,6 +56,7 @@ function runElmApp(nodeId, module) {
 runElmApp('normal', Elm.Normal);
 runElmApp('binomial', Elm.Binomial);
 runElmApp('poisson', Elm.Poisson);
+runElmApp('students', Elm.Students);
 
 $(document).ready(function() {
   $('#normal-caption').click(function() {
@@ -65,7 +66,12 @@ $(document).ready(function() {
   $('#binomial-caption').click(function() {
     $('#binomial').slideToggle("fast");
   });
+
   $('#poisson-caption').click(function() {
     $('#poisson').slideToggle("fast");
+  });
+
+  $('#students-caption').click(function() {
+    $('#students').slideToggle("fast");
   });
 });

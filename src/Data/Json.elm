@@ -6,6 +6,7 @@ import Data
 import Data.Json.Normal as Normal
 import Data.Json.Binomial as Binomial
 import Data.Json.Poisson as Poisson
+import Data.Json.Students as Students
 
 
 decodeResponse : String -> Result String Data.Response
@@ -19,3 +20,4 @@ responseDecoder =
         |> optional "Normal" (Decode.nullable Normal.decoder) Nothing
         |> optional "Binomial" (Decode.nullable Binomial.decoder) Nothing
         |> optional "Poisson" (Decode.nullable Poisson.decoder) Nothing
+        |> optional "Students" (Decode.nullable Students.decoder) Nothing
