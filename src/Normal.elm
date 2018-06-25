@@ -5,6 +5,7 @@ import Html exposing (..)
 import Html.Attributes as Attr
 import RemoteData
 import Data exposing (emptyRequest)
+import Data.Normal
 import Data.Json as Json
 import AWS.Lambda
 import Plotty
@@ -25,7 +26,7 @@ main =
 
 
 type alias Response =
-    Data.NormalResponse
+    Data.Normal.Response
 
 
 type alias RemoteStatsData =
@@ -70,7 +71,7 @@ getResponse model =
             stats
 
         _ ->
-            Data.emptyNormalResponse
+            Data.Normal.emptyResponse
 
 
 init : ( Model, Cmd Message )
@@ -87,7 +88,7 @@ init =
     )
 
 
-fetchStats : Data.NormalRequest -> Cmd msg
+fetchStats : Data.Normal.Request -> Cmd msg
 fetchStats request =
     AWS.Lambda.fetchStats { emptyRequest | normal = Just request }
 
@@ -132,7 +133,7 @@ validateAndFetchStats : Model -> ( Model, Cmd Message )
 validateAndFetchStats model =
     let
         r =
-            Result.map Data.NormalRequest (toNormalParams model.mu model.sigma)
+            Result.map Data.Normal.Request (toNormalParams model.mu model.sigma)
                 |> andThen (Ok (Just 40))
                 |> andThen (Validator.toMaybeFloat "PDF" model.pdf)
                 |> andThen (Validator.toMaybeFloat "CDF" model.cdf)
@@ -162,9 +163,9 @@ onFetchStatsSuccess model value =
             ( { model | stats = RemoteData.Failure (Data.BadPayload error) }, drawPlot Nothing )
 
 
-toNormalParams : String -> String -> Result String Data.NormalParams
+toNormalParams : String -> String -> Result String Data.Normal.Params
 toNormalParams mu sigma =
-    Result.map2 Data.NormalParams (Validator.toFloat "Mu" mu) (Validator.toNonNegativeFloat "Sigma" sigma)
+    Result.map2 Data.Normal.Params (Validator.toFloat "Mu" mu) (Validator.toNonNegativeFloat "Sigma" sigma)
 
 
 view : Model -> Html Message

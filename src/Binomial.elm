@@ -5,6 +5,7 @@ import Html exposing (..)
 import Html.Attributes as Attr
 import RemoteData
 import Data exposing (emptyRequest)
+import Data.Binomial
 import Data.Json as Json
 import AWS.Lambda
 import Plotty
@@ -25,7 +26,7 @@ main =
 
 
 type alias Response =
-    Data.BinomialResponse
+    Data.Binomial.Response
 
 
 type alias RemoteStatsData =
@@ -68,7 +69,7 @@ getResponse model =
             stats
 
         _ ->
-            Data.emptyBinomialResponse
+            Data.Binomial.emptyResponse
 
 
 init : ( Model, Cmd Message )
@@ -84,7 +85,7 @@ init =
     )
 
 
-fetchStats : Data.BinomialRequest -> Cmd msg
+fetchStats : Data.Binomial.Request -> Cmd msg
 fetchStats request =
     AWS.Lambda.fetchStats { emptyRequest | binomial = Just request }
 
@@ -135,7 +136,7 @@ validateAndFetchStats : Model -> ( Model, Cmd Message )
 validateAndFetchStats model =
     let
         r =
-            Result.map Data.BinomialRequest (toParams model.numberOfTrials model.p)
+            Result.map Data.Binomial.Request (toParams model.numberOfTrials model.p)
                 |> andThen (Ok (Just 40))
                 |> andThen (Validator.toMaybeIntFromInterval "PMF" 0 201 model.pmf)
                 |> andThen (Validator.toMaybeIntFromInterval "CDF" 0 201 model.cdf)
@@ -149,9 +150,9 @@ validateAndFetchStats model =
                 ( { model | stats = RemoteData.Failure (Data.BadRequest error) }, drawPlot Nothing )
 
 
-toParams : String -> String -> Result String Data.BinomialParams
+toParams : String -> String -> Result String Data.Binomial.Params
 toParams n p =
-    Result.map2 Data.BinomialParams
+    Result.map2 Data.Binomial.Params
         (Validator.toIntFromInterval "NumberOfTrials" 0 201 n)
         (Validator.toFloatFromInterval "Probability" 0.0 1.0 p)
 
