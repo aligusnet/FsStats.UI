@@ -62,6 +62,9 @@ Global
 .wrapper-stats button {
 	width: 90%;
 }
+.wrapper-stats textarea {
+	width: 90%;
+}
 .error {
 	color: crimson;
 }

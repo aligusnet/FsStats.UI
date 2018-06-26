@@ -5,6 +5,7 @@ import Data.Bernoulli as Bernoulli
 import Data.Binomial as Binomial
 import Data.Poisson as Poisson
 import Data.Students as Students
+import Data.SummaryStatistics as SummaryStatistics
 
 
 type alias Request =
@@ -13,6 +14,7 @@ type alias Request =
     , binomial : Maybe Binomial.Request
     , poisson : Maybe Poisson.Request
     , students : Maybe Students.Request
+    , summary : Maybe SummaryStatistics.Request
     }
 
 
@@ -23,6 +25,7 @@ emptyRequest =
     , binomial = Nothing
     , poisson = Nothing
     , students = Nothing
+    , summary = Nothing
     }
 
 
@@ -32,6 +35,7 @@ type alias Response =
     , binomial : Maybe Binomial.Response
     , poisson : Maybe Poisson.Response
     , students : Maybe Students.Response
+    , summary : Maybe SummaryStatistics.Response
     }
 
 

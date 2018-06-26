@@ -27,6 +27,9 @@ function runElmApp(nodeId, module) {
   });
 
   app.ports.drawPlot.subscribe(function({title: title, x: x, y: y, plotType: plotType, plotId: plotId}) {
+    if (y.length == 0) {
+      y = undefined
+    }
     let trace = {
       x: x,
       y: y,
@@ -58,6 +61,7 @@ runElmApp('bernoulli', Elm.Bernoulli);
 runElmApp('binomial', Elm.Binomial);
 runElmApp('poisson', Elm.Poisson);
 runElmApp('students', Elm.Students);
+runElmApp('summary-statistics', Elm.SummaryStatistics);
 
 $(document).ready(function() {
   $('#normal-caption').click(function() {
@@ -78,5 +82,9 @@ $(document).ready(function() {
 
   $('#students-caption').click(function() {
     $('#students').slideToggle("fast");
+  });
+
+  $('#summary-statistics-caption').click(function() {
+    $('#summary-statistics').slideToggle("fast");
   });
 });

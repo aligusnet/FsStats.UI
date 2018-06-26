@@ -1,5 +1,7 @@
 module Validator exposing (..)
 
+import Array exposing (Array)
+
 
 andThen : Result x a -> Result x (a -> value) -> Result x value
 andThen value func =
@@ -115,3 +117,47 @@ toMaybeIntFromInterval field begin end s =
 
             Err err ->
                 Err err
+
+
+toFloatArray : String -> String -> Result String (Array Float)
+toFloatArray field s =
+    let
+        ar =
+            String.split " " s
+                |> List.map String.toFloat
+                |> transform (Ok [])
+    in
+        case ar of
+            Ok a ->
+                Ok (Array.fromList a)
+
+            Err err ->
+                Err (field ++ ": " ++ err)
+
+
+toMaybeFloatArray : String -> String -> Result String (Maybe (Array Float))
+toMaybeFloatArray field s =
+    if String.isEmpty (String.trim s) then
+        Ok Nothing
+    else
+        case toFloatArray field s of
+            Ok a ->
+                Ok (Just a)
+
+            Err err ->
+                Err err
+
+
+transform : Result a (List value) -> List (Result a value) -> Result a (List value)
+transform res lst =
+    case lst of
+        r :: rs ->
+            case r of
+                Ok x ->
+                    transform (Result.map2 (::) r res) rs
+
+                Err err ->
+                    Err err
+
+        [] ->
+            res
