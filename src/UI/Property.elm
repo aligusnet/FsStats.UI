@@ -1,64 +1,10 @@
-module UI.Property exposing (Value(..), Property, property, render)
+module UI.Property exposing (Property, property, render)
 
 import Html exposing (..)
 import Html.Attributes as Attr
 import Html.Events exposing (..)
-import Array exposing (Array)
 import UI.Style as Style
-
-
-type Value
-    = VInt (Maybe Int)
-    | VFloat (Maybe Float)
-    | VBool (Maybe Bool)
-    | VArrayInt (Maybe (Array Int))
-    | VArrayFloat (Maybe (Array Float))
-    | VNothing
-
-
-valueToString : Value -> String
-valueToString value =
-    let
-        sep =
-            " "
-    in
-        case value of
-            VInt (Just i) ->
-                toString i
-
-            VInt Nothing ->
-                ""
-
-            VFloat (Just f) ->
-                toString f
-
-            VFloat Nothing ->
-                ""
-
-            VBool (Just b) ->
-                toString b
-
-            VBool Nothing ->
-                ""
-
-            VArrayInt (Just array) ->
-                Array.map toString array
-                    |> Array.toList
-                    |> String.join sep
-
-            VArrayInt Nothing ->
-                ""
-
-            VArrayFloat (Just array) ->
-                Array.map toString array
-                    |> Array.toList
-                    |> String.join sep
-
-            VArrayFloat Nothing ->
-                ""
-
-            VNothing ->
-                ""
+import UI.Value exposing (Value(..), valueToString)
 
 
 type alias Property msg =

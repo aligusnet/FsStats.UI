@@ -13,6 +13,7 @@ import Validator exposing (andThen)
 import UI
 import UI.Property exposing (Property, property)
 import UI.Style as Style
+import UI.Value
 
 
 main : Program Never Model Message
@@ -212,7 +213,7 @@ propertyPdf response =
         | caption = Just "Probability density function (PDF)"
         , name = "x"
         , message = Just ChangePdf
-        , value = UI.Property.VFloat response.pdf
+        , value = UI.Value.VFloat response.pdf
     }
 
 
@@ -222,7 +223,7 @@ propertyCdf response =
         | caption = Just "Cumulative distribution function (CDF)"
         , name = "x"
         , message = Just ChangeCdf
-        , value = UI.Property.VFloat response.cdf
+        , value = UI.Value.VFloat response.cdf
     }
 
 
@@ -232,7 +233,7 @@ propertyQuantile response =
         | caption = Just "Quantile"
         , name = "F"
         , message = Just ChangeQuantile
-        , value = UI.Property.VFloat response.quantile
+        , value = UI.Value.VFloat response.quantile
     }
 
 
@@ -242,7 +243,7 @@ propertySample response =
         | caption = Just "Random Sample"
         , name = "Size"
         , message = Just ChangeSample
-        , value = UI.Property.VArrayFloat response.sample
+        , value = UI.Value.VArrayFloat response.sample
     }
 
 
@@ -258,7 +259,7 @@ viewRemoteStatsData rsd =
                     Nothing
 
         makeProperty name f =
-            { property | name = name, value = UI.Property.VFloat (Maybe.map f response) }
+            { property | name = name, value = UI.Value.VFloat (Maybe.map f response) }
     in
         div []
             [ UI.Property.render (makeProperty "Mean" .mean)
