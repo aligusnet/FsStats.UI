@@ -8,7 +8,7 @@ import Data exposing (emptyRequest)
 import Data.Normal
 import Data.Json as Json
 import AWS.Lambda
-import Plotty
+import Plotly
 import Validator exposing (andThen)
 import UI
 import UI.Property exposing (Property, property)
@@ -95,7 +95,7 @@ fetchStats request =
 
 drawPlot : Maybe ( Array.Array Float, Array.Array Float ) -> Cmd msg
 drawPlot curve =
-    Plotty.plot "normal_plot" "Normal Distribution" curve
+    Plotly.plotLine "normal_plot" "Normal Distribution" curve
 
 
 update : Message -> Model -> ( Model, Cmd Message )

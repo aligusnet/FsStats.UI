@@ -26,11 +26,11 @@ function runElmApp(nodeId, module) {
     });
   });
 
-  app.ports.drawPlot.subscribe(function({title: title, x: x, y: y, plotId: plotId}) {
+  app.ports.drawPlot.subscribe(function({title: title, x: x, y: y, plotType: plotType, plotId: plotId}) {
     let trace = {
       x: x,
       y: y,
-      type: 'lines'
+      type: plotType
     };
 
     let layout = {

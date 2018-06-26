@@ -8,7 +8,7 @@ import Data exposing (emptyRequest)
 import Data.Binomial
 import Data.Json as Json
 import AWS.Lambda
-import Plotty
+import Plotly
 import Validator exposing (andThen)
 import UI
 import UI.Property exposing (Property, property)
@@ -101,7 +101,7 @@ drawPlot curve =
                 Nothing ->
                     Nothing
     in
-        Plotty.plot "binomial_plot" "Binomial Distribution" curve_
+        Plotly.plotLine "binomial_plot" "Binomial Distribution" curve_
 
 
 update : Message -> Model -> ( Model, Cmd Message )
