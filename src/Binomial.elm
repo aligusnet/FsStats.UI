@@ -137,14 +137,14 @@ validateAndFetchStats model =
     let
         r =
             Result.map Data.Binomial.Request (toParams model.numberOfTrials model.p)
-                |> andThen (Ok (Just 40))
+                |> andThen (Ok True)
                 |> andThen (Validator.toMaybeIntFromInterval "PMF" 0 201 model.pmf)
                 |> andThen (Validator.toMaybeIntFromInterval "CDF" 0 201 model.cdf)
                 |> andThen (Validator.toMaybeIntFromInterval "Sample" 0 101 model.sample)
     in
         case r of
             Ok request ->
-                ( { model | stats = RemoteData.Loading }, fetchStats { request | curve = Just (request.params.numberOfTrials + 1) } )
+                ( { model | stats = RemoteData.Loading }, fetchStats request )
 
             Err error ->
                 ( { model | stats = RemoteData.Failure (Data.BadRequest error) }, drawPlot Nothing )

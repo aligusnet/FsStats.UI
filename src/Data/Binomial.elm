@@ -5,7 +5,7 @@ import Array exposing (Array)
 
 type alias Request =
     { params : Params
-    , curve : Maybe Int
+    , curve : Bool
     , pmf : Maybe Int
     , cdf : Maybe Int
     , sample : Maybe Int
