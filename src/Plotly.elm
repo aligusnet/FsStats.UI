@@ -18,11 +18,21 @@ port drawPlot : Arguments -> Cmd msg
 port clearPlot : String -> Cmd msg
 
 
-plotLine : String -> String -> Maybe ( Array.Array Float, Array.Array Float ) -> Cmd msg
+plotLine : String -> String -> Maybe ( Array Float, Array Float ) -> Cmd msg
 plotLine plotId title curve =
     case curve of
         Just ( x, y ) ->
             drawPlot { title = title, x = x, y = y, plotId = plotId, plotType = "lines" }
+
+        Nothing ->
+            clearPlot plotId
+
+
+plotBar : String -> String -> Maybe ( Array Float, Array Float ) -> Cmd msg
+plotBar plotId title xy =
+    case xy of
+        Just ( x, y ) ->
+            drawPlot { title = title, x = x, y = y, plotId = plotId, plotType = "bar" }
 
         Nothing ->
             clearPlot plotId

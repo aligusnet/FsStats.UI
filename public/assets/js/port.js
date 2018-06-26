@@ -54,6 +54,7 @@ function runElmApp(nodeId, module) {
 }
 
 runElmApp('normal', Elm.Normal);
+runElmApp('bernoulli', Elm.Bernoulli);
 runElmApp('binomial', Elm.Binomial);
 runElmApp('poisson', Elm.Poisson);
 runElmApp('students', Elm.Students);
@@ -61,6 +62,10 @@ runElmApp('students', Elm.Students);
 $(document).ready(function() {
   $('#normal-caption').click(function() {
     $('#normal').slideToggle("fast");
+  });
+
+  $('#bernoulli-caption').click(function() {
+    $('#bernoulli').slideToggle("fast");
   });
 
   $('#binomial-caption').click(function() {
