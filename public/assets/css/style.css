@@ -29,6 +29,12 @@ Properties
 	font-weight: bold;
 	font-size: 110%;
 	text-decoration: underline;
+	cursor: pointer;
+	color:#1f77b4;
+}
+.stats-caption:hover {
+	background: #1f77b4;
+	color: white;
 }
 .stats {
 	display: none;
