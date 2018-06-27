@@ -62,6 +62,7 @@ runElmApp('binomial', Elm.Binomial);
 runElmApp('poisson', Elm.Poisson);
 runElmApp('students', Elm.Students);
 runElmApp('summary-statistics', Elm.SummaryStatistics);
+runElmApp('hypothesis', Elm.Hypothesis);
 
 $(document).ready(function() {
   $('#normal-caption').click(function() {
@@ -86,5 +87,9 @@ $(document).ready(function() {
 
   $('#summary-statistics-caption').click(function() {
     $('#summary-statistics').slideToggle("fast");
+  });
+
+  $('#hypothesis-caption').click(function() {
+    $('#hypothesis').slideToggle("fast");
   });
 });

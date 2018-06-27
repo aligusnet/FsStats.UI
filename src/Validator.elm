@@ -93,6 +93,19 @@ toMaybeInt field s =
                 Err (field ++ ": " ++ err)
 
 
+toNonNegativeInt : String -> String -> Result String Int
+toNonNegativeInt field s =
+    let
+        testForNonNegative f =
+            if f < 0 then
+                Err (field ++ ": value must be non-negative")
+            else
+                Ok f
+    in
+        toInt field s
+            |> Result.andThen testForNonNegative
+
+
 toIntFromInterval : String -> Int -> Int -> String -> Result String Int
 toIntFromInterval field begin end s =
     let

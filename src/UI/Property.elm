@@ -1,4 +1,4 @@
-module UI.Property exposing (Property, property, render)
+module UI.Property exposing (Property, property, render, renderName)
 
 import Html exposing (..)
 import Html.Attributes as Attr

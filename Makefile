@@ -4,7 +4,7 @@ run: build
 	elm-reactor
 
 build:
-	elm-make src/Normal.elm src/Bernoulli.elm src/Binomial.elm src/Poisson.elm src/Students.elm src/SummaryStatistics.elm --output=$(ELM_JS) --warn
+	elm-make src/Normal.elm src/Bernoulli.elm src/Binomial.elm src/Poisson.elm src/Students.elm src/SummaryStatistics.elm src/Hypothesis.elm --output=$(ELM_JS) --warn
 
 # npm install uglify-js -g
 compress:

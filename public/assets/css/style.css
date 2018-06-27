@@ -68,6 +68,17 @@ Global
 .error {
 	color: crimson;
 }
+
+.wrapper-stats input[type=radio] {
+	width: 15px;
+	margin-left: 0;
+	margin-right: 10px;
+}
+
+.wrapper-stats fieldset {
+	border: 0;
+	padding: 0;
+}
 /*************************
 Media Queries
 *************************/
