@@ -139,7 +139,7 @@ validateAndFetchStats model =
                 |> andThen (Validator.toMaybeFloat "PDF" model.pdf)
                 |> andThen (Validator.toMaybeFloat "CDF" model.cdf)
                 |> andThen (Validator.toMaybeFloatFromInterval "Quantile" 0 1 model.quantile)
-                |> andThen (Validator.toMaybeIntFromInterval "Sample" 0 101 model.sample)
+                |> andThen (Validator.toMaybeIntFromInterval "Sample" 0 1001 model.sample)
     in
         case r of
             Ok request ->

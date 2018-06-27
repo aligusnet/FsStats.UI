@@ -143,7 +143,7 @@ validateAndFetchStats model =
             Result.map Data.Bernoulli.Request (toParams model.p)
                 |> andThen (Validator.toMaybeIntFromInterval "PMF" -1 3 model.pmf)
                 |> andThen (Validator.toMaybeIntFromInterval "CDF" -1 3 model.cdf)
-                |> andThen (Validator.toMaybeIntFromInterval "Sample" 0 101 model.sample)
+                |> andThen (Validator.toMaybeIntFromInterval "Sample" 0 1001 model.sample)
     in
         case r of
             Ok request ->

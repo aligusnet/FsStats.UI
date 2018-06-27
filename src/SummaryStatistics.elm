@@ -182,7 +182,7 @@ propertyPercentile response =
 
 propertyCorrelation : Response -> BigProperty Message
 propertyCorrelation response =
-    { name = "Params"
+    { name = "Correlation"
     , message = ChangeCorrelation
     , placeholder = "Space-separated list of numbers.\ne.g.: 10.1 12.3 7.9"
     , value = UI.Value.VFloat response.correlation

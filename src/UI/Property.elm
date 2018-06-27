@@ -82,9 +82,9 @@ renderValue property controls =
             valueToString property.value
 
         isLongValue =
-            String.length str > 15
+            String.length str > 50
     in
         if isLongValue then
-            div [] [ text str ] :: controls
+            textarea [ Attr.readonly True ] [ text str ] :: controls
         else
             div [ Attr.class Style.propertyValue ] [ text str ] :: controls

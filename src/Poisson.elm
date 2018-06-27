@@ -135,7 +135,7 @@ validateAndFetchStats model =
                 |> andThen (Ok True)
                 |> andThen (Validator.toMaybeIntFromInterval "PMF" 0 201 model.pmf)
                 |> andThen (Validator.toMaybeIntFromInterval "CDF" 0 201 model.cdf)
-                |> andThen (Validator.toMaybeIntFromInterval "Sample" 0 101 model.sample)
+                |> andThen (Validator.toMaybeIntFromInterval "Sample" 0 1001 model.sample)
     in
         case r of
             Ok request ->
