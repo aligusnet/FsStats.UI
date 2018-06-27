@@ -40,6 +40,8 @@ type alias Response =
     , students : Maybe Students.Response
     , summary : Maybe SummaryStatistics.Response
     , hypothesis : Maybe Hypothesis.Response
+    , errorType : Maybe String
+    , errorMessage : Maybe String
     }
 
 
@@ -47,3 +49,4 @@ type Error
     = BadStatus String
     | BadPayload String
     | BadRequest String
+    | UnexpectedResponse Response

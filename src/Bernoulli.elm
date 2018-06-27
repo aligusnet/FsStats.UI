@@ -168,7 +168,7 @@ onFetchStatsSuccess model value =
                     ( { model | stats = RemoteData.Success bernoulli }, drawPlot (Just bernoulli.params.p) )
 
                 Nothing ->
-                    ( { model | stats = RemoteData.Failure (Data.BadPayload "No data retrieved") }, drawPlot Nothing )
+                    ( { model | stats = RemoteData.Failure (Data.UnexpectedResponse response) }, drawPlot Nothing )
 
         Err error ->
             ( { model | stats = RemoteData.Failure (Data.BadPayload error) }, drawPlot Nothing )

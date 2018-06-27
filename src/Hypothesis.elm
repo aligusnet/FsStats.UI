@@ -1,6 +1,5 @@
 module Hypothesis exposing (main)
 
-import Array
 import Html exposing (..)
 import Html.Attributes as Attr
 import Html.Events exposing (onClick)
@@ -12,7 +11,6 @@ import AWS.Lambda
 import Validator exposing (andThen)
 import UI
 import UI.Property exposing (Property, property)
-import UI.BigProperty
 import UI.Style as Style
 import UI.Value
 
@@ -160,7 +158,7 @@ onFetchStatsSuccess model value =
                     ( { model | stats = RemoteData.Success hypothesis }, Cmd.none )
 
                 Nothing ->
-                    ( { model | stats = RemoteData.Failure (Data.BadPayload "No data retrieved") }, Cmd.none )
+                    ( { model | stats = RemoteData.Failure (Data.UnexpectedResponse response) }, Cmd.none )
 
         Err error ->
             ( { model | stats = RemoteData.Failure (Data.BadPayload error) }, Cmd.none )

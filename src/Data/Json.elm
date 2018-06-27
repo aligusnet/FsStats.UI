@@ -27,3 +27,5 @@ responseDecoder =
         |> optional "Students" (Decode.nullable Students.decoder) Nothing
         |> optional "Summary" (Decode.nullable SummaryStatistics.decoder) Nothing
         |> optional "Hypothesis" (Decode.nullable Hypothesis.decoder) Nothing
+        |> optional "errorType" (Decode.nullable Decode.string) Nothing
+        |> optional "errorMessage" (Decode.nullable Decode.string) Nothing

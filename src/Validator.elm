@@ -136,7 +136,7 @@ toFloatArray : String -> String -> Result String (Array Float)
 toFloatArray field s =
     let
         ar =
-            String.split " " s
+            String.split " " (String.trim s)
                 |> List.map String.toFloat
                 |> transform (Ok [])
     in
