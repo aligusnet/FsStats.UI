@@ -195,7 +195,7 @@ view model =
 propertyNumberOfTrials : Property Message
 propertyNumberOfTrials =
     { property
-        | name = "NumberOfTrials"
+        | name = "Number Of Trials"
         , message = Just ChangeNumberOfTrials
         , placeholder = "e.g. 10"
     }
@@ -255,11 +255,11 @@ viewRemoteStatsData rsd =
             { property | name = name, value = UI.Value.VFloat (Maybe.map f response) }
 
         makeBoolProperty name f =
-            { property | name = name, value = UI.Value.VBool (Maybe.map f response) }
+            { property | caption = Just name, value = UI.Value.VBool (Maybe.map f response) }
     in
         div []
             [ UI.Property.render (makeProperty "Mean" .mean)
             , UI.Property.render (makeProperty "StdDev" .stddev)
             , UI.Property.render (makeProperty "Variance" .variance)
-            , UI.Property.render (makeBoolProperty "isNormalApproximationApplicable" .isNormalApproximationApplicable)
+            , UI.Property.render (makeBoolProperty "Is Normal Approximation Applicable" .isNormalApproximationApplicable)
             ]

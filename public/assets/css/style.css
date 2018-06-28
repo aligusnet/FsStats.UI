@@ -14,10 +14,10 @@ Properties
     padding-top: 10px;
 }
 .property-name {
-	width: 150px;
+	width: 130px;
     overflow: hidden;
-  	white-space: nowrap;
-  	text-overflow: ellipsis;
+  	white-space: initial;
+  	text-overflow: hidden;
   	padding-right: 10px;
   	font-weight: bold;
 }
@@ -53,8 +53,8 @@ Global
 *************************/
 
 .wrapper-stats {
-    margin: auto 40px;
-    max-width: 500px;
+    margin: auto 20px;
+    max-width: 400px;
 }
 .wrapper-stats input {
 	width: 90%;

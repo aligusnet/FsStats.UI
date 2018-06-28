@@ -35,13 +35,21 @@ function runElmApp(nodeId, module) {
       y: y,
       type: plotType
     };
+    
 
     let layout = {
       title: title,
       showlegend: false,
       autosize: false,
-      height: 350,
-      width: 500
+      height: 250,
+      width: 400,
+      margin: {
+        l: 30,
+        r: 10,
+        b: 20,
+        t: 55,
+        pad: 4
+      }
     };
 
     let config = {
