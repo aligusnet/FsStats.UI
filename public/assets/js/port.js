@@ -44,7 +44,7 @@ function runElmApp(nodeId, module) {
       height: 250,
       width: 400,
       margin: {
-        l: 30,
+        l: 40,
         r: 10,
         b: 20,
         t: 55,

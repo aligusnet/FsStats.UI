@@ -199,7 +199,7 @@ propertyStddev =
         | caption = Just "Population (Z-Test) or Sample (t-Test) Standard Deviation"
         , name = "Sigma/s"
         , message = Just ChangeStddev
-        , placeholder = "e.g. 11.0"
+        , placeholder = "e.g. 6.0"
     }
 
 
@@ -209,7 +209,7 @@ propertySampleMean =
         | caption = Just "Sample Mean"
         , name = "Sample Mean"
         , message = Just ChangeSampleMean
-        , placeholder = "e.g. 77.0"
+        , placeholder = "e.g. 98.0"
     }
 
 
@@ -219,7 +219,7 @@ propertySampleSize =
         | caption = Just "Sample Size"
         , name = "Sample Size"
         , message = Just ChangeSampleSize
-        , placeholder = "e.g. 30"
+        , placeholder = "e.g. 25"
     }
 
 
