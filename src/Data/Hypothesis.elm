@@ -8,8 +8,8 @@ type alias Request =
 
 
 type alias Response =
-    { oneSampleZTest : Maybe Float
-    , oneSampleTTest : Maybe Float
+    { oneSampleZTest : Maybe OneSampleMeanTestResult
+    , oneSampleTTest : Maybe OneSampleMeanTestResult
     }
 
 
@@ -19,6 +19,15 @@ type alias OneSampleMeanTest =
     , sampleMean : Float
     , sampleSize : Int
     , testType : String
+    }
+
+
+type alias OneSampleMeanTestResult =
+    { pValue : Float
+    , score : Float
+    , rejectedAtSignificanceLevel001 : Bool
+    , rejectedAtSignificanceLevel005 : Bool
+    , rejectedAtSignificanceLevel010 : Bool
     }
 
 

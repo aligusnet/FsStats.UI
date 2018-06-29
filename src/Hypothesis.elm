@@ -171,16 +171,18 @@ view model =
             getResponse model
     in
         div [ Attr.class Style.wrapper ]
-            [ UI.Property.render propertyTrueMean
-            , UI.Property.render propertyStddev
-            , UI.Property.render propertySampleMean
-            , UI.Property.render propertySampleSize
-            , testType
-            , UI.Property.render (propertyOneSampleZTest response)
-            , UI.Property.render (propertyOneSampleTTest response)
-            , UI.submitButton "Retrieve stats" FetchStats
-            , UI.error model.stats
-            ]
+            ([ UI.Property.render propertyTrueMean
+             , UI.Property.render propertyStddev
+             , UI.Property.render propertySampleMean
+             , UI.Property.render propertySampleSize
+             , testType
+             ]
+                ++ (renderOneSampleMeanTest "One sample Z-Test (rejection of null hypothesis)" response.oneSampleZTest)
+                ++ (renderOneSampleMeanTest "One sample t-test (rejection of null hypothesis)" response.oneSampleTTest)
+                ++ [ UI.submitButton "Retrieve stats" FetchStats
+                   , UI.error model.stats
+                   ]
+            )
 
 
 propertyTrueMean : Property Message
@@ -223,20 +225,62 @@ propertySampleSize =
     }
 
 
-propertyOneSampleZTest : Response -> Property Message
-propertyOneSampleZTest response =
+renderOneSampleMeanTest : String -> Maybe Data.Hypothesis.OneSampleMeanTestResult -> List (Html Message)
+renderOneSampleMeanTest name result =
+    [ propertyPValue name result
+    , propertyScore result
+    , propertySL001 result
+    , propertySL005 result
+    , propertySL010 result
+    ]
+        |> List.map UI.Property.render
+
+
+propertyPValue : String -> Maybe Data.Hypothesis.OneSampleMeanTestResult -> Property Message
+propertyPValue name result =
     { property
-        | name = "Z-Test"
-        , value = UI.Value.VFloat response.oneSampleZTest
+        | name = "p-value"
+        , caption = Just name
+        , value = UI.Value.VFloat (Maybe.map .pValue result)
     }
 
 
-propertyOneSampleTTest : Response -> Property Message
-propertyOneSampleTTest response =
+propertyScore : Maybe Data.Hypothesis.OneSampleMeanTestResult -> Property Message
+propertyScore result =
     { property
-        | name = "T-Test"
-        , value = UI.Value.VFloat response.oneSampleTTest
+        | name = "score"
+        , value = UI.Value.VFloat (Maybe.map .score result)
     }
+
+
+propertySL001 : Maybe Data.Hypothesis.OneSampleMeanTestResult -> Property Message
+propertySL001 result =
+    { property
+        | name = "Reject at SL 0.01"
+        , value = UI.Value.VBool (Maybe.map .rejectedAtSignificanceLevel001 result)
+    }
+
+
+propertySL005 : Maybe Data.Hypothesis.OneSampleMeanTestResult -> Property Message
+propertySL005 result =
+    { property
+        | name = "Reject at SL 0.05"
+        , value = UI.Value.VBool (Maybe.map .rejectedAtSignificanceLevel005 result)
+    }
+
+
+propertySL010 : Maybe Data.Hypothesis.OneSampleMeanTestResult -> Property Message
+propertySL010 result =
+    { property
+        | name = "Reject at SL 0.10"
+        , value = UI.Value.VBool (Maybe.map .rejectedAtSignificanceLevel010 result)
+    }
+
+
+oneSampleMeanTest : String -> Data.Hypothesis.OneSampleMeanTestResult -> Html Message
+oneSampleMeanTest name result =
+    div [ Attr.class Style.propertyCaption ]
+        []
 
 
 testType : Html Message
