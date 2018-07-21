@@ -70,7 +70,7 @@ runElmApp('binomial', Elm.Binomial);
 runElmApp('poisson', Elm.Poisson);
 runElmApp('students', Elm.Students);
 runElmApp('summary-statistics', Elm.SummaryStatistics);
-runElmApp('hypothesis', Elm.Hypothesis);
+runElmApp('onePopulationMeanTest', Elm.OnePopulationMeanTest);
 
 $(document).ready(function() {
   $('#normal-caption').click(function() {
@@ -97,7 +97,7 @@ $(document).ready(function() {
     $('#summary-statistics').slideToggle("fast");
   });
 
-  $('#hypothesis-caption').click(function() {
-    $('#hypothesis').slideToggle("fast");
+  $('#onePopulationMeanTest-caption').click(function() {
+    $('#onePopulationMeanTest').slideToggle("fast");
   });
 });

@@ -9,7 +9,7 @@ import Data.Json.Binomial as Binomial
 import Data.Json.Poisson as Poisson
 import Data.Json.Students as Students
 import Data.Json.SummaryStatistics as SummaryStatistics
-import Data.Json.Hypothesis as Hypothesis
+import Data.Json.OnePopulationMeanTest as OnePopulationMeanTest
 
 
 decodeResponse : String -> Result String Data.Response
@@ -26,6 +26,6 @@ responseDecoder =
         |> optional "Poisson" (Decode.nullable Poisson.decoder) Nothing
         |> optional "Students" (Decode.nullable Students.decoder) Nothing
         |> optional "Summary" (Decode.nullable SummaryStatistics.decoder) Nothing
-        |> optional "Hypothesis" (Decode.nullable Hypothesis.decoder) Nothing
+        |> optional "OnePopulationMeanTest" (Decode.nullable OnePopulationMeanTest.decoder) Nothing
         |> optional "errorType" (Decode.nullable Decode.string) Nothing
         |> optional "errorMessage" (Decode.nullable Decode.string) Nothing

@@ -6,7 +6,7 @@ import Data.Binomial as Binomial
 import Data.Poisson as Poisson
 import Data.Students as Students
 import Data.SummaryStatistics as SummaryStatistics
-import Data.Hypothesis as Hypothesis
+import Data.OnePopulationMeanTest as OnePopulationMeanTest
 
 
 type alias Request =
@@ -16,7 +16,7 @@ type alias Request =
     , poisson : Maybe Poisson.Request
     , students : Maybe Students.Request
     , summary : Maybe SummaryStatistics.Request
-    , hypothesis : Maybe Hypothesis.Request
+    , onePopulationMeanTest : Maybe OnePopulationMeanTest.Request
     }
 
 
@@ -28,7 +28,7 @@ emptyRequest =
     , poisson = Nothing
     , students = Nothing
     , summary = Nothing
-    , hypothesis = Nothing
+    , onePopulationMeanTest = Nothing
     }
 
 
@@ -39,7 +39,7 @@ type alias Response =
     , poisson : Maybe Poisson.Response
     , students : Maybe Students.Response
     , summary : Maybe SummaryStatistics.Response
-    , hypothesis : Maybe Hypothesis.Response
+    , onePopulationMeanTest : Maybe OnePopulationMeanTest.Response
     , errorType : Maybe String
     , errorMessage : Maybe String
     }

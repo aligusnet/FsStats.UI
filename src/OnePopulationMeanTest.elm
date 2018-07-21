@@ -1,17 +1,19 @@
-module Hypothesis exposing (main)
+module OnePopulationMeanTest exposing (main)
 
 import Html exposing (..)
 import Html.Attributes as Attr
 import Html.Events exposing (onClick)
 import RemoteData
 import Data exposing (emptyRequest)
-import Data.Hypothesis
+import Data.TestType as TestType
+import Data.OnePopulationMeanTest exposing (Request, Response, Params)
 import Data.Json as Json
 import AWS.Lambda
 import Validator exposing (andThen)
 import UI
 import UI.Property exposing (Property, property)
 import UI.Style as Style
+import UI.TestResult
 import UI.Value
 
 
@@ -25,21 +27,13 @@ main =
         }
 
 
-type alias Request =
-    Data.Hypothesis.Request
-
-
-type alias Response =
-    Data.Hypothesis.Response
-
-
 type alias RemoteStatsData =
     RemoteData.RemoteData Data.Error Response
 
 
 type alias Model =
     { stats : RemoteStatsData
-    , trueMean : String
+    , populationMean : String
     , stddev : String
     , sampleMean : String
     , sampleSize : String
@@ -51,11 +45,11 @@ type Message
     = FetchStats
     | FetchStatsSuccess String
     | FetchStatsError String
-    | ChangeTrueMean String
+    | ChangePopulationMean String
     | ChangeStddev String
     | ChangeSampleMean String
     | ChangeSampleSize String
-    | ChangeTestType Data.Hypothesis.TestType
+    | ChangeTestType TestType.TestType
 
 
 subscriptions : Model -> Sub Message
@@ -73,13 +67,13 @@ getResponse model =
             stats
 
         _ ->
-            Data.Hypothesis.emptyResponse
+            Data.OnePopulationMeanTest.emptyResponse
 
 
 init : ( Model, Cmd Message )
 init =
     ( { stats = RemoteData.NotAsked
-      , trueMean = ""
+      , populationMean = ""
       , stddev = ""
       , sampleMean = ""
       , sampleSize = ""
@@ -89,13 +83,12 @@ init =
     )
 
 
-fetchStats : Data.Hypothesis.OneSampleMeanTest -> Cmd msg
-fetchStats test =
-    let
-        request =
-            { oneSampleZTest = Just test, oneSampleTTest = Just test }
-    in
-        AWS.Lambda.fetchStats { emptyRequest | hypothesis = Just request }
+fetchStats : Request -> Cmd msg
+fetchStats request =
+    AWS.Lambda.fetchStats
+        { emptyRequest
+            | onePopulationMeanTest = Just request
+        }
 
 
 update : Message -> Model -> ( Model, Cmd Message )
@@ -110,8 +103,8 @@ update msg model =
         FetchStatsError error ->
             ( { model | stats = RemoteData.Failure (Data.BadStatus error) }, Cmd.none )
 
-        ChangeTrueMean value ->
-            ( { model | trueMean = value }, Cmd.none )
+        ChangePopulationMean value ->
+            ( { model | populationMean = value }, Cmd.none )
 
         ChangeStddev value ->
             ( { model | stddev = value }, Cmd.none )
@@ -123,17 +116,14 @@ update msg model =
             ( { model | sampleSize = value }, Cmd.none )
 
         ChangeTestType value ->
-            ( { model | testType = Data.Hypothesis.testTypeToString value }, Cmd.none )
+            ( { model | testType = TestType.toString value }, Cmd.none )
 
 
 validateAndFetchStats : Model -> ( Model, Cmd Message )
 validateAndFetchStats model =
     let
         t =
-            Result.map Data.Hypothesis.OneSampleMeanTest (Validator.toFloat "Mu" model.trueMean)
-                |> andThen (Validator.toNonNegativeFloat "StdDev" model.stddev)
-                |> andThen (Validator.toFloat "SampleMean" model.sampleMean)
-                |> andThen (Validator.toNonNegativeInt "SampleSize" model.sampleSize)
+            Result.map Request (toParams model)
                 |> andThen
                     (if String.isEmpty model.testType then
                         Err "Please select test type"
@@ -149,13 +139,21 @@ validateAndFetchStats model =
                 ( { model | stats = RemoteData.Failure (Data.BadRequest error) }, Cmd.none )
 
 
+toParams : Model -> Result String Params
+toParams model =
+    Result.map Params (Validator.toFloat "Mu" model.populationMean)
+        |> andThen (Validator.toFloat "SampleMean" model.sampleMean)
+        |> andThen (Validator.toNonNegativeInt "SampleSize" model.sampleSize)
+        |> andThen (Validator.toNonNegativeFloat "StdDev" model.stddev)
+
+
 onFetchStatsSuccess : Model -> String -> ( Model, Cmd Message )
 onFetchStatsSuccess model value =
     case Json.decodeResponse value of
         Ok response ->
-            case response.hypothesis of
-                Just hypothesis ->
-                    ( { model | stats = RemoteData.Success hypothesis }, Cmd.none )
+            case response.onePopulationMeanTest of
+                Just test ->
+                    ( { model | stats = RemoteData.Success test }, Cmd.none )
 
                 Nothing ->
                     ( { model | stats = RemoteData.Failure (Data.UnexpectedResponse response) }, Cmd.none )
@@ -171,26 +169,24 @@ view model =
             getResponse model
     in
         div [ Attr.class Style.wrapper ]
-            ([ UI.Property.render propertyTrueMean
+            ([ UI.Property.render propertyPopulationMean
              , UI.Property.render propertyStddev
              , UI.Property.render propertySampleMean
              , UI.Property.render propertySampleSize
              , testType
+             , viewRemoteStatsData model.stats
+             , UI.submitButton "Retrieve stats" FetchStats
+             , UI.error model.stats
              ]
-                ++ (renderOneSampleMeanTest "One sample Z-Test (rejection of null hypothesis)" response.oneSampleZTest)
-                ++ (renderOneSampleMeanTest "One sample t-test (rejection of null hypothesis)" response.oneSampleTTest)
-                ++ [ UI.submitButton "Retrieve stats" FetchStats
-                   , UI.error model.stats
-                   ]
             )
 
 
-propertyTrueMean : Property Message
-propertyTrueMean =
+propertyPopulationMean : Property Message
+propertyPopulationMean =
     { property
         | name = "Mu"
         , caption = Just "Population (True) Mean"
-        , message = Just ChangeTrueMean
+        , message = Just ChangePopulationMean
         , placeholder = "e.g. 100.0"
     }
 
@@ -225,73 +221,15 @@ propertySampleSize =
     }
 
 
-renderOneSampleMeanTest : String -> Maybe Data.Hypothesis.OneSampleMeanTestResult -> List (Html Message)
-renderOneSampleMeanTest name result =
-    [ propertyPValue name result
-    , propertyScore result
-    , propertySL001 result
-    , propertySL005 result
-    , propertySL010 result
-    ]
-        |> List.map UI.Property.render
-
-
-propertyPValue : String -> Maybe Data.Hypothesis.OneSampleMeanTestResult -> Property Message
-propertyPValue name result =
-    { property
-        | name = "p-value"
-        , caption = Just name
-        , value = UI.Value.VFloat (Maybe.map .pValue result)
-    }
-
-
-propertyScore : Maybe Data.Hypothesis.OneSampleMeanTestResult -> Property Message
-propertyScore result =
-    { property
-        | name = "score"
-        , value = UI.Value.VFloat (Maybe.map .score result)
-    }
-
-
-propertySL001 : Maybe Data.Hypothesis.OneSampleMeanTestResult -> Property Message
-propertySL001 result =
-    { property
-        | name = "Reject at SL 0.01"
-        , value = UI.Value.VBool (Maybe.map .rejectedAtSignificanceLevel001 result)
-    }
-
-
-propertySL005 : Maybe Data.Hypothesis.OneSampleMeanTestResult -> Property Message
-propertySL005 result =
-    { property
-        | name = "Reject at SL 0.05"
-        , value = UI.Value.VBool (Maybe.map .rejectedAtSignificanceLevel005 result)
-    }
-
-
-propertySL010 : Maybe Data.Hypothesis.OneSampleMeanTestResult -> Property Message
-propertySL010 result =
-    { property
-        | name = "Reject at SL 0.10"
-        , value = UI.Value.VBool (Maybe.map .rejectedAtSignificanceLevel010 result)
-    }
-
-
-oneSampleMeanTest : String -> Data.Hypothesis.OneSampleMeanTestResult -> Html Message
-oneSampleMeanTest name result =
-    div [ Attr.class Style.propertyCaption ]
-        []
-
-
 testType : Html Message
 testType =
     let
         controls =
             [ fieldset
                 [ Attr.class Style.propertyRowBlock ]
-                [ radio "radio-lt" "Lower tailed" (ChangeTestType Data.Hypothesis.LowerTailed)
-                , radio "radio-tt" "Two tailed" (ChangeTestType Data.Hypothesis.TwoTailed)
-                , radio "radio-ut" "Upper Tailed" (ChangeTestType Data.Hypothesis.UpperTailed)
+                [ radio "radio-lt" "Lower tailed" (ChangeTestType TestType.LowerTailed)
+                , radio "radio-tt" "Two tailed" (ChangeTestType TestType.TwoTailed)
+                , radio "radio-ut" "Upper Tailed" (ChangeTestType TestType.UpperTailed)
                 ]
             ]
     in
@@ -305,3 +243,50 @@ radio id_ value msg =
         [ input [ Attr.id id_, Attr.type_ "radio", Attr.name "test-type", onClick msg ] []
         , label [ Attr.for id_ ] [ text value ]
         ]
+
+
+viewRemoteStatsData : RemoteStatsData -> Html Message
+viewRemoteStatsData rsd =
+    let
+        response =
+            case rsd of
+                RemoteData.Success stats ->
+                    Just stats
+
+                _ ->
+                    Nothing
+
+        makeProperty name f =
+            { property | name = name, value = UI.Value.VFloat (Maybe.map f response) }
+    in
+        div []
+            [ UI.TestResult.render (zTestResult response)
+            , UI.TestResult.render (tTestResult response)
+            , UI.Property.render (makeProperty "Score" .score)
+            , UI.Property.render (makeProperty "Z-Test" .zTest)
+            , UI.Property.render (makeProperty "t-Test" .tTest)
+            ]
+
+
+zTestResult : Maybe Response -> UI.TestResult.TestResult
+zTestResult response =
+    let
+        testResult =
+            UI.TestResult.testResult "One sample Z-Test"
+    in
+        { testResult
+            | score = Maybe.map .score response
+            , pValue = Maybe.map .zTest response
+        }
+
+
+tTestResult : Maybe Response -> UI.TestResult.TestResult
+tTestResult response =
+    let
+        testResult =
+            UI.TestResult.testResult "One sample t-Test"
+    in
+        { testResult
+            | score = Maybe.map .score response
+            , pValue = Maybe.map .tTest response
+        }

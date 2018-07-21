@@ -1,10 +1,12 @@
 ELM_JS=public/assets/js/fsstats.js
 
+ELMFILES = $(wildcard src/*.elm)
+
 run: build
 	elm-reactor
 
 build:
-	elm-make src/Normal.elm src/Bernoulli.elm src/Binomial.elm src/Poisson.elm src/Students.elm src/SummaryStatistics.elm src/Hypothesis.elm --output=$(ELM_JS) --warn
+	elm-make ${ELMFILES} --output=$(ELM_JS) --warn
 
 # npm install uglify-js -g
 compress:
