@@ -14,7 +14,6 @@ import UI
 import UI.Property exposing (Property, property)
 import UI.Style as Style
 import UI.TestResult
-import UI.Value
 
 
 main : Program Never Model Message
@@ -255,16 +254,10 @@ viewRemoteStatsData rsd =
 
                 _ ->
                     Nothing
-
-        makeProperty name f =
-            { property | name = name, value = UI.Value.VFloat (Maybe.map f response) }
     in
         div []
             [ UI.TestResult.render (zTestResult response)
             , UI.TestResult.render (tTestResult response)
-            , UI.Property.render (makeProperty "Score" .score)
-            , UI.Property.render (makeProperty "Z-Test" .zTest)
-            , UI.Property.render (makeProperty "t-Test" .tTest)
             ]
 
 
