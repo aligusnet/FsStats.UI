@@ -4,7 +4,8 @@ AWS.config.credentials = new AWS.CognitoIdentityCredentials({IdentityPoolId: 'us
 const lambda = new AWS.Lambda({region: 'eu-west-2', apiVersion: '2015-03-31'});
 
 function runElmApp(nodeId, module) {
-  let node = document.getElementById(nodeId);
+  let node = document.createElement("div");
+  document.getElementById(nodeId).appendChild(node);
   let app = module.init({node: node});
 
   app.ports.fetchStats.subscribe(function(request) {
