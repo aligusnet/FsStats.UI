@@ -1,14 +1,14 @@
 module Data.Json.Poisson exposing (decoder)
 
-import Json.Decode as Decode
-import Json.Decode.Pipeline exposing (decode, required, optional)
+import Json.Decode as Decode exposing (succeed)
+import Json.Decode.Pipeline exposing (required, optional)
 import Data.Poisson exposing (Params, Response)
 import Data.Json.Decode exposing (decodePairOfIntFloatArrays, decodeIntArray)
 
 
 decoder : Decode.Decoder Response
 decoder =
-    decode Response
+    succeed Response
         |> required "Params" binomialParamsDecoder
         |> required "Mean" Decode.float
         |> required "StdDev" Decode.float
@@ -21,5 +21,5 @@ decoder =
 
 binomialParamsDecoder : Decode.Decoder Params
 binomialParamsDecoder =
-    decode Params
+    succeed Params
         |> required "Mu" Decode.float

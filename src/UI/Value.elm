@@ -20,25 +20,25 @@ valueToString value =
     in
         case value of
             VInt (Just i) ->
-                toString i
+                String.fromInt i
 
             VInt Nothing ->
                 ""
 
             VFloat (Just f) ->
-                toString f
+                String.fromFloat f
 
             VFloat Nothing ->
                 ""
 
             VBool (Just b) ->
-                toString b
+                stringFromBool b
 
             VBool Nothing ->
                 ""
 
             VArrayInt (Just array) ->
-                Array.map toString array
+                Array.map String.fromInt array
                     |> Array.toList
                     |> String.join sep
 
@@ -46,7 +46,7 @@ valueToString value =
                 ""
 
             VArrayFloat (Just array) ->
-                Array.map toString array
+                Array.map String.fromFloat array
                     |> Array.toList
                     |> String.join sep
 
@@ -55,3 +55,13 @@ valueToString value =
 
             VNothing ->
                 ""
+
+
+stringFromBool : Bool -> String
+stringFromBool b =
+    case b of
+        True ->
+            "true"
+
+        False ->
+            "false"

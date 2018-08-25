@@ -65,7 +65,7 @@ propertySLList pValue sls =
 propertySL : Maybe Float -> Float -> Property.Property msg
 propertySL pValue slValue =
     { property
-        | name = "Reject at SL " ++ toString slValue
+        | name = "Reject at SL " ++ String.fromFloat slValue
         , value = UI.Value.VBool (Maybe.map2 (<) pValue (Just slValue))
     }
 

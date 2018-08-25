@@ -1,14 +1,14 @@
 module Data.Json.Binomial exposing (decoder)
 
-import Json.Decode as Decode
-import Json.Decode.Pipeline exposing (decode, required, optional)
+import Json.Decode as Decode exposing (succeed)
+import Json.Decode.Pipeline exposing (required, optional)
 import Data.Binomial exposing (Params, Response)
 import Data.Json.Decode exposing (decodePairOfIntFloatArrays, decodeIntArray)
 
 
 decoder : Decode.Decoder Response
 decoder =
-    decode Response
+    succeed Response
         |> required "Params" binomialParamsDecoder
         |> required "Mean" Decode.float
         |> required "StdDev" Decode.float
@@ -22,6 +22,6 @@ decoder =
 
 binomialParamsDecoder : Decode.Decoder Params
 binomialParamsDecoder =
-    decode Params
+    succeed Params
         |> required "NumberOfTrials" Decode.int
         |> required "P" Decode.float
