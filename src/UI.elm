@@ -56,7 +56,7 @@ formatUnexpectedResponseError response =
             errorMessage
 
         ( Nothing, Nothing ) ->
-            "Got unexpected payload: " ++ (toString response)
+            "Got unexpected payload"
 
 
 submitButton : String -> msg -> Html msg

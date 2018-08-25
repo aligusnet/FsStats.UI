@@ -1,6 +1,7 @@
 module SummaryStatistics exposing (main)
 
 import Array
+import Browser
 import Html exposing (..)
 import Html.Attributes as Attr
 import RemoteData
@@ -17,9 +18,9 @@ import UI.Style as Style
 import UI.Value
 
 
-main : Program Never Model Message
+main : Program () Model Message
 main =
-    Html.program
+    Browser.element
         { init = init
         , view = view
         , update = update
@@ -71,8 +72,8 @@ getResponse model =
             Data.SummaryStatistics.emptyResponse
 
 
-init : ( Model, Cmd Message )
-init =
+init : () -> ( Model, Cmd Message )
+init _ =
     ( { stats = RemoteData.NotAsked
       , params = ""
       , percentile = ""

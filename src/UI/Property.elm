@@ -27,18 +27,18 @@ property =
 
 
 render : Property msg -> Html msg
-render property =
+render prop =
     let
         controls =
-            renderCaption property [ renderRow property ]
+            renderCaption prop [ renderRow prop ]
     in
         div [ Attr.class Style.propertyRowBlock ]
             controls
 
 
 renderCaption : Property msg -> List (Html msg) -> List (Html msg)
-renderCaption property controls =
-    case property.caption of
+renderCaption prop controls =
+    case prop.caption of
         Just caption ->
             (div [ Attr.class Style.propertyCaption ] [ text caption ]) :: controls
 
@@ -47,12 +47,12 @@ renderCaption property controls =
 
 
 renderRow : Property msg -> Html msg
-renderRow property =
+renderRow prop =
     let
         controls =
-            renderName property.name []
-                |> renderInput property
-                |> renderValue property
+            renderName prop.name []
+                |> renderInput prop
+                |> renderValue prop
                 |> List.reverse
     in
         div [ Attr.class Style.propertyRow ] controls
@@ -64,11 +64,11 @@ renderName name controls =
 
 
 renderInput : Property msg -> List (Html msg) -> List (Html msg)
-renderInput property controls =
-    case property.message of
+renderInput prop controls =
+    case prop.message of
         Just message ->
             div [ Attr.class Style.propertyValue ]
-                [ input [ Attr.placeholder property.placeholder, onInput message ] [] ]
+                [ input [ Attr.placeholder prop.placeholder, onInput message ] [] ]
                 :: controls
 
         Nothing ->
@@ -76,10 +76,10 @@ renderInput property controls =
 
 
 renderValue : Property msg -> List (Html msg) -> List (Html msg)
-renderValue property controls =
+renderValue prop controls =
     let
         str =
-            valueToString property.value
+            valueToString prop.value
 
         isLongValue =
             String.length str > 50

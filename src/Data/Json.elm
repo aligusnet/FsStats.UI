@@ -1,7 +1,7 @@
 module Data.Json exposing (decodeResponse)
 
-import Json.Decode as Decode
-import Json.Decode.Pipeline exposing (decode, optional)
+import Json.Decode as Decode exposing (succeed)
+import Json.Decode.Pipeline exposing (optional)
 import Data
 import Data.Json.Normal as Normal
 import Data.Json.Bernoulli as Bernoulli
@@ -14,12 +14,17 @@ import Data.Json.OnePopulationMeanTest as OnePopulationMeanTest
 
 decodeResponse : String -> Result String Data.Response
 decodeResponse value =
-    Decode.decodeString responseDecoder value
+    case Decode.decodeString responseDecoder value of
+        Ok response ->
+            Ok response
+
+        Err decodeError ->
+            Err (Decode.errorToString decodeError)
 
 
 responseDecoder : Decode.Decoder Data.Response
 responseDecoder =
-    decode Data.Response
+    succeed Data.Response
         |> optional "Normal" (Decode.nullable Normal.decoder) Nothing
         |> optional "Bernoulli" (Decode.nullable Bernoulli.decoder) Nothing
         |> optional "Binomial" (Decode.nullable Binomial.decoder) Nothing

@@ -1,14 +1,14 @@
 module Data.Json.Normal exposing (decoder)
 
-import Json.Decode as Decode
-import Json.Decode.Pipeline exposing (decode, required, optional)
+import Json.Decode as Decode exposing (succeed)
+import Json.Decode.Pipeline exposing (required, optional)
 import Data.Normal exposing (Params, Response)
 import Data.Json.Decode exposing (decodePairOfFloatArrays, decodeFloatArray)
 
 
 decoder : Decode.Decoder Response
 decoder =
-    decode Response
+    succeed Response
         |> required "Params" normalParamsDecoder
         |> required "Mean" Decode.float
         |> required "StdDev" Decode.float
@@ -22,6 +22,6 @@ decoder =
 
 normalParamsDecoder : Decode.Decoder Params
 normalParamsDecoder =
-    decode Params
+    succeed Params
         |> required "Mu" Decode.float
         |> required "Sigma" Decode.float

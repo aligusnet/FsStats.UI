@@ -39,8 +39,8 @@ plotBar plotId title xy =
 
 
 plotHistogram : String -> String -> Maybe (Array Float) -> Cmd msg
-plotHistogram plotId title x =
-    case x of
+plotHistogram plotId title data =
+    case data of
         Just x ->
             drawPlot { title = title, x = x, y = Array.empty, plotId = plotId, plotType = "histogram" }
 

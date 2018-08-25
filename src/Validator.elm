@@ -11,11 +11,11 @@ andThen value func =
 toFloat : String -> String -> Result String Float
 toFloat field s =
     case String.toFloat s of
-        Ok f ->
+        Just f ->
             Ok f
 
-        Err err ->
-            Err (field ++ ": " ++ err)
+        Nothing ->
+            Err (field ++ ": " ++ stringToFloatError)
 
 
 toNonNegativeFloat : String -> String -> Result String Float
@@ -38,7 +38,7 @@ toFloatFromInterval field begin end s =
             if x > begin && x < end then
                 Ok x
             else
-                Err (field ++ ": floating point value must be between " ++ (toString begin) ++ " and " ++ (toString end))
+                Err (field ++ ": floating point value must be between " ++ (String.fromFloat begin) ++ " and " ++ (String.fromFloat end))
     in
         toFloat field s
             |> Result.andThen testForInterval
@@ -63,21 +63,21 @@ toMaybeFloat field s =
         Ok Nothing
     else
         case String.toFloat s of
-            Ok f ->
+            Just f ->
                 Ok (Just f)
 
-            Err err ->
-                Err (field ++ ": " ++ err)
+            Nothing ->
+                Err (field ++ ": " ++ stringToFloatError)
 
 
 toInt : String -> String -> Result String Int
 toInt field s =
     case String.toInt s of
-        Ok i ->
+        Just i ->
             Ok i
 
-        Err err ->
-            Err (field ++ ": " ++ err)
+        Nothing ->
+            Err (field ++ ": " ++ stringToIntError)
 
 
 toMaybeInt : String -> String -> Result String (Maybe Int)
@@ -86,11 +86,11 @@ toMaybeInt field s =
         Ok Nothing
     else
         case String.toInt s of
-            Ok i ->
+            Just i ->
                 Ok (Just i)
 
-            Err err ->
-                Err (field ++ ": " ++ err)
+            Nothing ->
+                Err (field ++ ": " ++ stringToIntError)
 
 
 toNonNegativeInt : String -> String -> Result String Int
@@ -113,7 +113,7 @@ toIntFromInterval field begin end s =
             if x > begin && x < end then
                 Ok x
             else
-                Err (field ++ ": integer value must be  between " ++ (toString begin) ++ " and " ++ (toString end))
+                Err (field ++ ": integer value must be  between " ++ (String.fromInt begin) ++ " and " ++ (String.fromInt end))
     in
         toInt field s
             |> Result.andThen testForInterval
@@ -138,14 +138,14 @@ toFloatArray field s =
         ar =
             String.split " " (String.trim s)
                 |> List.map String.toFloat
-                |> transform (Ok [])
+                |> transform (Just [])
     in
         case ar of
-            Ok a ->
+            Just a ->
                 Ok (Array.fromList a)
 
-            Err err ->
-                Err (field ++ ": " ++ err)
+            Nothing ->
+                Err (field ++ ": " ++ stringToFloatError)
 
 
 toMaybeFloatArray : String -> String -> Result String (Maybe (Array Float))
@@ -161,16 +161,26 @@ toMaybeFloatArray field s =
                 Err err
 
 
-transform : Result a (List value) -> List (Result a value) -> Result a (List value)
+transform : Maybe (List value) -> List (Maybe value) -> Maybe (List value)
 transform res lst =
     case lst of
         r :: rs ->
             case r of
-                Ok x ->
-                    transform (Result.map2 (::) r res) rs
+                Just x ->
+                    transform (Maybe.map2 (::) r res) rs
 
-                Err err ->
-                    Err err
+                Nothing ->
+                    Nothing
 
         [] ->
             res
+
+
+stringToFloatError : String
+stringToFloatError =
+    "failed to convert string value to floating-point number"
+
+
+stringToIntError : String
+stringToIntError =
+    "failed to convert string value to integer number"

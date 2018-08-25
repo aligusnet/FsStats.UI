@@ -1,14 +1,14 @@
 module Data.Json.Students exposing (decoder)
 
-import Json.Decode as Decode
-import Json.Decode.Pipeline exposing (decode, required, optional)
+import Json.Decode as Decode exposing (succeed)
+import Json.Decode.Pipeline exposing (required, optional)
 import Data.Students exposing (Params, Response)
 import Data.Json.Decode exposing (decodePairOfFloatArrays)
 
 
 decoder : Decode.Decoder Response
 decoder =
-    decode Response
+    succeed Response
         |> required "Params" paramsDecoder
         |> required "Mean" Decode.float
         |> required "StdDev" Decode.float
@@ -20,5 +20,5 @@ decoder =
 
 paramsDecoder : Decode.Decoder Params
 paramsDecoder =
-    decode Params
+    succeed Params
         |> required "Nu" Decode.float

@@ -1,14 +1,14 @@
 module Data.Json.SummaryStatistics exposing (decoder)
 
-import Json.Decode as Decode
-import Json.Decode.Pipeline exposing (decode, required, optional)
+import Json.Decode as Decode exposing (succeed)
+import Json.Decode.Pipeline exposing (required, optional)
 import Data.SummaryStatistics exposing (Response)
 import Data.Json.Decode exposing (decodeFloatArray)
 
 
 decoder : Decode.Decoder Response
 decoder =
-    decode Response
+    succeed Response
         |> required "Params" decodeFloatArray
         |> required "Mean" Decode.float
         |> required "StdDev" Decode.float

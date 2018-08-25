@@ -1,11 +1,6 @@
-language: node_js
-node_js:
-  - "8.11.3"
-cache:
-  directories:
-    - elm-stuff
+language: c
 install:
-  - npm install -g elm@0.18.0
-  - elm-package install -y
+  - wget "https://github.com/elm/compiler/releases/download/0.19.0/binaries-for-linux.tar.gz"
+  - tar xzf binaries-for-linux.tar.gz
 script:
-  - make build
+  - ELM_BIN=./elm make build
