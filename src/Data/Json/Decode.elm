@@ -24,5 +24,6 @@ decodeIntArray =
     Decode.array Decode.int
 
 
+makePair : a -> b -> ( a, b )
 makePair a b =
     ( a, b )
